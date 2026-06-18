@@ -3,9 +3,13 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
 import { errors as celebrateErrors } from 'celebrate'
 
+import announcementsRouter from './src/routes/announcements.routes.js'
+
 const app = express()
 
-// Swagger configuration
+app.use(express.json())
+
+// Swagger
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -20,42 +24,33 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: [],
+  apis: ['./src/routes/*.js'],
 }
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions)
 
-app.use(express.json())
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
+// routes
+app.use('/announcements', announcementsRouter)
+
+// ❗ celebrate errors (ПОВИНЕН БУТИ ПІСЛЯ ROUTES)
 app.use(celebrateErrors())
 
-// Our routes would go here, for example:
-// app.use('/api/announcements', announcementsRouter)
-
-// 404 Not Found handler - must be after all routes
+// 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' })
 })
 
-// Error handling middleware
+// error handler
 app.use((err, req, res, next) => {
   console.error(err)
 
-  // JSON parsing errors (invalid JSON format)
-  if (err.type === 'entity.parse.failed' && err.status === 400) {
+  if (err.type === 'entity.parse.failed') {
     return res.status(400).json({
       statusCode: 400,
       error: 'Bad Request',
       message: 'Invalid JSON',
-      validation: {
-        body: {
-          source: 'body',
-          keys: [],
-          message: 'Invalid JSON format in request body',
-        },
-      },
     })
   }
 

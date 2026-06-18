@@ -1,0 +1,46 @@
+GET http://localhost:3000/announcements
+
+GET http://localhost:3000/announcements?search=test
+
+GET http://localhost:3000/announcements?sort=oldest&page=1
+
+GET http://localhost:3000/announcements/1
+
+GET http://localhost:3000/announcements/999999
+
+POST http://localhost:3000/announcements
+Content-Type: application/json
+
+{
+  "title": "Продам ноутбук",
+  "description": "Гарний стан, майже новий ноутбук",
+  "price": 15000,
+  "category": "sale",
+  "contactInfo": "0991234567"
+}
+
+POST http://localhost:3000/announcements
+Content-Type: application/json
+
+{
+  "title": "abc"
+}
+
+PATCH http://localhost:3000/announcements/1
+Content-Type: application/json
+
+{
+  "price": 12000
+}
+
+PATCH http://localhost:3000/announcements/999999
+Content-Type: application/json
+
+{
+  "price": 1000
+}
+
+DELETE http://localhost:3000/announcements/1
+
+DELETE http://localhost:3000/announcements/999999
+
