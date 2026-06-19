@@ -36,9 +36,12 @@ model Announcement {
   price       Float
   category    String
   contactInfo String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  imageUrl    String?
 
   userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

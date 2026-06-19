@@ -14,6 +14,7 @@ import {
 } from '../validators/announcements.validator.js'
 
 import { authenticate } from '../middleware/auth.middleware.js'
+import { upload } from '../middleware/upload.middleware.js'
 
 const router = Router()
 
@@ -64,15 +65,16 @@ router.get('/', getAnnouncements)
 
 router.get('/:id', idValidator, getAnnouncementById)
 
-/**
+ /**
  * @swagger
  * /announcements:
  *   post:
  *     summary: Create announcement
+ *     description: Create announcement with optional image upload
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -92,6 +94,9 @@ router.get('/:id', idValidator, getAnnouncementById)
  *                 type: string
  *               contactInfo:
  *                 type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
  *         description: Created
@@ -101,27 +106,35 @@ router.post(
   '/',
   authenticate,
   createAnnouncementValidator,
+  upload.single('image'),
   createAnnouncement
 )
 
-
-/**
+ /**
  * @swagger
  * /announcements/{id}:
  *   patch:
  *     summary: Update announcement
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               category:
+ *                 type: string
+ *               contactInfo:
+ *                 type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Updated
@@ -132,9 +145,9 @@ router.patch(
   authenticate,
   idValidator,
   updateAnnouncementValidator,
+  upload.single('image'),
   updateAnnouncement
 )
-
 
 /**
  * @swagger

@@ -1,4 +1,9 @@
 import prisma from '../../prisma/client.js'
+import logger from '../logger.js'
+import cloudinary from '../lib/cloudinary.js'
+import fs from 'fs-extra'
+import logger from '../logger.js'
+
 export const getAnnouncements = async (req, res) => {
   const { search = '', sort = 'newest', page = 1 } = req.query
 
@@ -50,12 +55,42 @@ export const getAnnouncementById = async (req, res) => {
 }
 
 export const createAnnouncement = async (req, res) => {
+  let imageUrl = null
+
+  if (req.file) {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'announcements',
+    })
+
+    imageUrl = result.secure_url
+
+    await fs.remove(req.file.path)
+
+    logger.info(
+      {
+        file: result.secure_url,
+        userId: req.user.id,
+      },
+      'Image uploaded'
+    )
+  }
+
   const data = await prisma.announcement.create({
     data: {
       ...req.body,
+      price: Number(req.body.price),
       userId: req.user.id,
+      imageUrl,
     },
-})
+  })
+
+  logger.info(
+    {
+      announcementId: data.id,
+      userId: data.userId,
+    },
+    'Announcement created'
+  )
 
   res.status(201).json(data)
 }

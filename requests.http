@@ -32,3 +32,37 @@ Content-Type: application/json
 ### logout
 POST http://localhost:3000/auth/logout
 Authorization: Bearer {{accessToken}}
+
+### Create announcement (NO IMAGE)
+POST http://localhost:3000/announcements
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Test",
+  "description": "Test desc",
+  "price": 100,
+  "category": "sale",
+  "contactInfo": "test@mail.com"
+}
+
+### Create announcement WITH IMAGE
+POST http://localhost:3000/announcements
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data
+
+title=Bike
+description=Nice bike
+price=500
+category=sale
+contactInfo=test@mail.com
+image=@/path/to/image.jpg
+
+### Spam login (run many times)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "username": "test_user1",
+  "password": "1234567"
+}

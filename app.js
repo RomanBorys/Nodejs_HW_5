@@ -6,10 +6,39 @@ import { errors as celebrateErrors } from 'celebrate'
 import announcementsRouter from './src/routes/announcements.routes.js'
 import cookieParser from 'cookie-parser'
 import authRouter from './src/routes/auth.routes.js'
+import helmet from 'helmet'
+import cors from 'cors'
+import rateLimit from 'express-rate-limit'
+import pinoHttp from 'pino-http'
+import logger from './src/logger.js'
 
 const app = express()
 
+app.use(
+  pinoHttp({
+    logger,
+  })
+)
+
+app.use(helmet())
+
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS.split(','),
+    credentials: true,
+  })
+)
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: {
+    error: 'Too many requests, please try again later',
+  },
+})
+
 app.use(express.json())
+
 app.use(cookieParser())
 // Swagger
 const swaggerOptions = {
@@ -58,8 +87,8 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 // routes
-app.use('/announcements', announcementsRouter)
-app.use('/auth', authRouter)
+app.use('/announcements', announcementRoutes)
+app.use('/auth', authLimiter, authRoutes)
 
 app.use(celebrateErrors())
 

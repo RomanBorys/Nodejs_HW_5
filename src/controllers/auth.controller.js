@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import prisma from '../../prisma/client.js'
+import logger from '../logger.js'
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
@@ -40,6 +41,14 @@ export const register = async (req, res) => {
       name,
     },
   })
+
+  logger.info(
+  {
+    userId: user.id,
+    username: user.username,
+  },
+  'New user registered'
+)
 
   const tokens = generateTokens(user)
 
@@ -81,6 +90,14 @@ export const login = async (req, res) => {
   if (!valid) {
     return res.status(401).json({ error: 'Invalid credentials' })
   }
+
+  logger.info(
+  {
+    userId: user.id,
+    username: user.username,
+  },
+  'User logged in'
+)
 
   const tokens = generateTokens(user)
 
