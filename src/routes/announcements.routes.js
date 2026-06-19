@@ -13,6 +13,8 @@ import {
   idValidator,
 } from '../validators/announcements.validator.js'
 
+import { authenticate } from '../middleware/auth.middleware.js'
+
 const router = Router()
 
 /**
@@ -95,7 +97,13 @@ router.get('/:id', idValidator, getAnnouncementById)
  *         description: Created
  */
 
-router.post('/', createAnnouncementValidator, createAnnouncement)
+router.post(
+  '/',
+  authenticate,
+  createAnnouncementValidator,
+  createAnnouncement
+)
+
 
 /**
  * @swagger
@@ -119,7 +127,14 @@ router.post('/', createAnnouncementValidator, createAnnouncement)
  *         description: Updated
  */
 
-router.patch('/:id', idValidator, updateAnnouncementValidator, updateAnnouncement)
+router.patch(
+  '/:id',
+  authenticate,
+  idValidator,
+  updateAnnouncementValidator,
+  updateAnnouncement
+)
+
 
 /**
  * @swagger
@@ -137,7 +152,12 @@ router.patch('/:id', idValidator, updateAnnouncementValidator, updateAnnouncemen
  *         description: Deleted
  */
 
-router.delete('/:id', idValidator, deleteAnnouncement)
+router.delete(
+  '/:id',
+  authenticate,
+  idValidator,
+  deleteAnnouncement
+)
 
 export default router
 

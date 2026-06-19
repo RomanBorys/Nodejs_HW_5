@@ -1,5 +1,4 @@
 import prisma from '../../prisma/client.js'
-// GET ALL
 export const getAnnouncements = async (req, res) => {
   const { search = '', sort = 'newest', page = 1 } = req.query
 
@@ -40,7 +39,6 @@ export const getAnnouncements = async (req, res) => {
   })
 }
 
-// GET BY ID
 export const getAnnouncementById = async (req, res) => {
   const id = Number(req.params.id)
 
@@ -51,20 +49,31 @@ export const getAnnouncementById = async (req, res) => {
   res.json(item)
 }
 
-// CREATE
 export const createAnnouncement = async (req, res) => {
-  console.log("BODY:", req.body)
-
   const data = await prisma.announcement.create({
-    data: req.body,
-  })
+    data: {
+      ...req.body,
+      userId: req.user.id,
+    },
+})
 
   res.status(201).json(data)
 }
 
-// PATCH
 export const updateAnnouncement = async (req, res) => {
   const id = Number(req.params.id)
+
+  const announcement = await prisma.announcement.findUnique({
+    where: { id },
+  })
+
+  if (!announcement) {
+    return res.status(404).json({ error: 'Not found' })
+  }
+
+  if (announcement.userId !== req.user.id) {
+    return res.status(403).json({ error: 'Access denied' })
+  }
 
   const updated = await prisma.announcement.update({
     where: { id },
@@ -74,9 +83,20 @@ export const updateAnnouncement = async (req, res) => {
   res.json(updated)
 }
 
-// DELETE
 export const deleteAnnouncement = async (req, res) => {
   const id = Number(req.params.id)
+
+  const announcement = await prisma.announcement.findUnique({
+    where: { id },
+  })
+
+  if (!announcement) {
+    return res.status(404).json({ error: 'Not found' })
+  }
+
+  if (announcement.userId !== req.user.id) {
+    return res.status(403).json({ error: 'Access denied' })
+  }
 
   await prisma.announcement.delete({
     where: { id },
@@ -84,4 +104,3 @@ export const deleteAnnouncement = async (req, res) => {
 
   res.status(204).end()
 }
-
