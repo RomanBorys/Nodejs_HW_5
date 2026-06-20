@@ -58,23 +58,23 @@ export const createAnnouncement = async (req, res) => {
   let imageUrl = null
 
   if (req.file) {
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'announcements',
-    })
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: 'announcements',
+  })
 
-    imageUrl = result.secure_url
+  imageUrl = result.secure_url
 
-    await fs.remove(req.file.path)
+  await unlink(req.file.path)
 
-    logger.info(
-      {
-        file: result.secure_url,
-        userId: req.user.id,
-      },
-      'Image uploaded'
-    )
+  logger.info(
+    {
+      file: result.secure_url,
+      userId: req.user.id,
+    },
+    'Image uploaded'
+  )
   }
-
+ 
   const data = await prisma.announcement.create({
     data: {
       ...req.body,
